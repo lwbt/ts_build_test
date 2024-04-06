@@ -1,0 +1,100 @@
+= Small Tailscale Builds
+:hide-uri-scheme:
+// Enable keyboard macros
+:experimental:
+:toc:
+:toclevels: 4
+:icons: font
+:note-caption: ℹ️
+:tip-caption: 💡
+:warning-caption: ⚠️
+:caution-caption: 🔥
+:important-caption: ❗
+
+== Overview
+
+(Temporary) Project URL: https://github.com/lwbt/ts_build_test
+
+[NOTE]
+====
+The entire functionality here is just one GitHub Actions Workflow file:
+
+link:.github/workflows/build.yaml[]
+====
+
+=== Motivation
+
+Provide automated builds of Tailscale as described in https://tailscale.com/kb/1207/small-tailscale[KB: Small Tailscale] for embedded devices.
+
+* Building a combined binary of `tailscale` and `tailscaled`
+* Using the build option `--extra-small`
+* Compressing the binary with UPX
+
+== Do it yourself
+
+=== Costs
+
+* https://github.com/settings/billing/summary[Billing Summary] -- Pipeline minutes and packages
+* https://github.com/settings/billing/spending_limit[Spending Limits] -- By default it should have a spending limit of 0, so you will not get billed but the functionalities will stop working when exceeding a limit. I have to figure out by myself how much on an impact this has, a I currently interpret it, I won't hit the monthly pipeline minutes limit and outgoing data transfer for public packages seems to be free?
+
+Pipeline consumption:
+
+* You can run the check every hour which takes about 30 seconds
+* If a build is created it will take about a total of 7 minutes, 2 minutes per architecture, and you will be "billed" 7 minutes, which means you will have 7 minutes left to use this month
+
+=== Notifications
+
+If you clone the repository and run the workflow on your account, you will
+receive email from GitHub when a new release was created. You will also see
+that, while the cron definition says run every hour at 00 Minutes, that a
+runner will sometimes start and complete a few minutes later.
+
+=== Fork
+
+TODO
+
+=== Re-create
+
+Here are the basic individual steps if you don't want to fork:
+
+[source,bash]
+----
+# Login to GitHub (necessary on the first run)
+gh auth login -h github.com -p HTTPS -w
+
+# Create a new repo on GitHub
+REPO="ts_build_test"
+gh repo create ${REPO} --private
+
+# Verify that the new repo exists
+gh repo list
+
+# TODO
+# Do a git clone of the new repo here? GH already gives you the URL.
+
+# Create folder structure for workflows
+mkdir -pv .github/workflows
+
+# TODO
+# Do a git push of the new repo here?
+----
+
+=== Required Settings
+
+Setting -> Actions -> General -> Workflow permissions
+-> "Read and write permissions"
+(default: "Read repository contents and packages permissions")
+
+[source,bash]
+----
+OWNER="lwbt"
+REPO="ts_build_test"
+gh api \
+  --method PUT \
+  -H "Accept: application/vnd.github+json" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  /repos/${OWNER}/${REPO}/actions/permissions/workflow \
+  -f default_workflow_permissions='write'
+----
+
+https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#set-default-workflow-permissions-for-a-repository[Set default workflow permissions for a repository]
