@@ -1,0 +1,52 @@
+= Small Tailscale Builds -- GoReleaser Experiment
+:hide-uri-scheme:
+// Enable keyboard macros
+:experimental:
+:toc:
+:toclevels: 4
+:icons: font
+:note-caption: ℹ️
+:tip-caption: 💡
+:warning-caption: ⚠️
+:caution-caption: 🔥
+:important-caption: ❗
+
+== Overview
+
+This was my second attempt building the workflow and the first attempt using GoReleaser.
+I have not gotten this to work yet, therefore I'm archiving it to start were I have left off when I decide to give this another try.
+
+`github_workflows_deployment.yaml` is meant to be saved under `.github/workflows/deployment.yaml`.
+
+== Work log / tasks completed
+
+* Ran `goreleaser init` and `goreleaser check` in `cmd/tailscaled` directory of
+  Tailscale source repository, as suggested by https://goreleaser.com/quick-start/
+** Result saved as `.goreleaser_ts_init.yaml`
+* Put `main: ./cmd/tailscaled` under `builds:` to use `.goreleaser.yaml` in the
+  root of the Tailscale source repository, as suggested by
+  https://goreleaser.com/customization/builds/
+* Added section for UPX to `.goreleaser.yaml`
+* Fetch and review `.goreleaser.yaml` from Chezmoi
+
+== Reference Code and Documentation
+
+Tailscale documentation and code:
+
+* https://github.com/tailscale/tailscale/blob/main/.github/workflows/test.yml#L110
+* https://github.com/tailscale/tailscale/blob/main/build_dist.sh[] -- The script you are supposed to use building binaries for distribution and playing fair with people in the community when other users ask questions
+* Small Tailscale documentation page: https://tailscale.com/kb/1207/small-tailscale[]
+* Static builds comparison: https://pkgs.tailscale.com/stable/#static[]
+
+A few selected projects using GoReleaser:
+
+* GitHub CLI (gh): https://github.com/cli/cli/blob/v2.47.0/.github/workflows/deployment.yml[] -- The cleanest example I found so far
+* Chezmoi: https://github.com/twpayne/chezmoi/blob/master/.github/workflows/main.yml[] -- Does a lot more than I was looking for while not giving the answers to get what I was looking for.
+** https://github.com/twpayne/chezmoi/blob/master/.goreleaser.yaml[] -- This is the file I used and trimmed down to get link:.goreleaser.yaml[]
+* Gum:
+** https://github.com/charmbracelet/gum/blob/main/.github/workflows/goreleaser.yml
+** https://github.com/charmbracelet/meta/blob/main/.github/workflows/goreleaser.yml
+** This was more complexity than expected, I was looking for a simple solution under 100 lines of code.
+* GoReleaser
+** https://goreleaser.com/ci/actions/
+** https://goreleaser.com/customization/upx/

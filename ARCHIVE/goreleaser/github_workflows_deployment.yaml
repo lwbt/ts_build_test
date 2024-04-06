@@ -1,0 +1,126 @@
+name: Deployment
+#run-name: ${{ inputs.tag_name }} / ${{ inputs.environment }}
+
+permissions:
+  contents: write
+on:
+  workflow_dispatch:
+    inputs:
+      #tag_name:
+      #  required: true
+      #  type: string
+      #environment:
+      #  default: production
+      #  type: environment
+      platforms:
+        #default: "linux,macos,windows"
+        default: "linux"
+        type: string
+      release:
+        description: "Whether to create a GitHub Release"
+        type: boolean
+        default: true
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    #environment: ${{ inputs.environment }}
+    if: contains(inputs.platforms, 'linux')
+    steps:
+      - name: Checkout .goreleaser.yaml
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .goreleaser.yaml
+          sparse-checkout-cone-mode: false
+      - name: Checkout
+        uses: actions/checkout@v4
+        # Added by me
+        with:
+          repository: tailscale/tailscale
+          #fetch-depth: 0
+          path: source
+      # Accoring to ChatGPT
+      - name: Check out the latest tag
+        run: |
+          cd source
+          git fetch --tags --quiet
+          latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1))
+          git checkout $latest_tag
+          # copy file
+          cp -v ../.goreleaser.yaml .
+          git config --global user.email "lwbt_pipeline@github.com"
+          git config --global user.name "lwbt"
+          git add .goreleaser.yaml
+          git commit --amend --no-edit
+          git tag -d $latest_tag
+          git tag $latest_tag
+        #      - name: Copy .goreleaser.yaml
+        #        run: |
+        #          #ls -la
+        #          #cp -v .goreleaser.yaml ./source/cmd/tailscaled/.goreleaser.yaml
+        #          cp -v .goreleaser.yaml ./source/.goreleaser.yaml
+        #          cd source
+        #          git config --global user.email "lwbt_pipeline@github.com"
+        #          git config --global user.name "lwbt"
+        #          git add .goreleaser.yaml
+        #          git commit --amend --no-edit
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          #go-version-file: 'go.mod'
+          go-version: stable
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@v5
+        with:
+          #version: "~1.17.1"
+          version: latest
+          install-only: true
+      - name: Build release binaries
+        #env:
+        #  TAG_NAME: ${{ inputs.tag_name }}
+        #run: script/release --local "$TAG_NAME" --platform linux
+        #run: ./build_dist.sh --extra-small --box ./cmd/tailscaled
+        run: |
+          cd source
+          #go run ./cmd/mkversion
+          #echo ${VERSION_LONG}
+          #echo ${VERSION_SHORT}
+          #ldflags="-X tailscale.com/version.longStamp=${VERSION_LONG} -X tailscale.com/version.shortStamp=${VERSION_SHORT}"
+          #tags=""
+          #ldflags="$ldflags -w -s"
+          #tags="${tags:+$tags,}ts_omit_aws,ts_omit_bird,ts_omit_tap,ts_omit_kube"
+          #tags="${tags:+$tags,}ts_include_cli"
+          #goreleaser check .goreleaser.yaml
+          goreleaser check
+          goreleaser healthcheck
+          goreleaser build
+          goreleaser release --clean --skip=validate -f .goreleaser.yaml
+          #goreleaser release --clean --skip=validate -f ./cmd/tailscaled/.goreleaser.yaml
+        #    $go build ${tags:+-tags=$tags} -ldflags "$ldflags" ./cmd/tailscaled
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #- name: Generate web manual pages
+      #  run: |
+      #    go run ./cmd/gen-docs --website --doc-path dist/manual
+      #    tar -czvf dist/manual.tar.gz -C dist -- manual
+      - name: check
+        run: |
+          ls -la
+          cd source
+          ls -la
+          ls -la dist
+          ls -la cmd/tailscaled
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          if-no-files-found: error
+          retention-days: 7
+          #          path: .
+          path: |
+            source/dist/*
+#            source/dist/*.tar.gz
+#          path: |
+#            tailscaled
+#            dist/*.tar.gz
+#      #      dist/*.rpm
+#      #      dist/*.deb

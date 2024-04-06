@@ -1,0 +1,50 @@
+= GitHub Actions Pipeline
+:hide-uri-scheme:
+// Enable keyboard macros
+:experimental:
+:toc:
+:toclevels: 4
+:icons: font
+:note-caption: ℹ️
+:tip-caption: 💡
+:warning-caption: ⚠️
+:caution-caption: 🔥
+:important-caption: ❗
+
+== Overview
+
+This might be a good introduction to GitHub Actions.
+
+The entire functionality here is just one
+link:../.github/workflows/build.yaml[GitHub Actions Workflow file].
+
+There is a simpler workflow you can start with: link:../.github/workflows/build_simple.yaml-disabled[]
+
+// TODO
+== TODO
+
+* Add SBOM as described in: https://github.com/microsoft/sbom-tool/blob/main/docs/setting-up-github-actions.md
+** https://github.com/${OWNER}/${REPO}/network/dependencies[] (link:../../../network/dependencies[relative link]) offers an SBOM file, is this the same? Does this make sense?
+
+== Tools
+
+For maintenance, if something breaks, use these tools:
+
+* https://rhysd.github.io/actionlint/[Playground] from https://github.com/rhysd/actionlint
+* https://github-actions-hero.vercel.app/[Tutorial] for GitHub Actions
+
+== Resource usage and cost
+
+TODO
+
+== Security
+
+Go to
+https://github.com/${OWNER}/${REPO}/settings/actions
+(link:../../../settings/actions[relative link])
+and select:
+Actions permissions -> **Allow `OWNER`, and select non-`OWNER`, actions and reusable workflows**.
+Enable **Allow actions created by GitHub**.
+Add `ncipollo/release-action@v*` to **Allow specified actions and reusable workflows**.
+
+TODO: Find a way to do this with `gh`.
