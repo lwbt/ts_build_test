@@ -1,0 +1,145 @@
+= Small Tailscale Builds -- Scratchpad
+:hide-uri-scheme:
+// Enable keyboard macros
+:experimental:
+:toc:
+:toclevels: 4
+:icons: font
+:note-caption: ℹ️
+:tip-caption: 💡
+:warning-caption: ⚠️
+:caution-caption: 🔥
+:important-caption: ❗
+
+== Redo
+
+[quote]
+____
+you are an expert devops engineer. i am an experienced linux administrator. i am concerned about code quality and security.
+
+TODO: how do i create a github action workflow to cross compile a golang binary on linux for amd64, arm64 and mips?
+____
+
+* [x] compress with upx
+* [x] publish packages
+* [x] add license file from origin
+* [x] release notes, refer to: https://github.com/tailscale/tailscale/releases
+* [x] how to abort/skip if there is no newer tag available?
+* [x] add checksums
+* remove older releases
+* clean up workflow runs and releases:
+** https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#delete-a-workflow-run
+** https://docs.github.com/en/rest/releases/releases?apiVersion=2022-11-28#delete-a-release
+** Delete a tag?
+* how to manage cache?
+
+=== Clean up
+
+"write a script that uses gh to retrieve all tags for a given repo"
+"delete releases, packages and tags"
+
+== Reference Code and Documentation
+
+Tailscale documentation and code:
+
+* https://github.com/tailscale/tailscale/blob/main/.github/workflows/test.yml#L110
+* https://github.com/tailscale/tailscale/blob/main/build_dist.sh[] -- The script you are supposed to use building binaries for distribution and playing fair with people in the community when other users ask questions
+* Small Tailscale documentation page: https://tailscale.com/kb/1207/small-tailscale[]
+* Static builds comparison: https://pkgs.tailscale.com/stable/#static[]
+
+A few selected projects:
+
+* Syncthing: https://github.com/syncthing/syncthing/blob/main/.github/workflows/build-syncthing.yaml[] -- Does not use GoReleaser
+
+GitHub Actions:
+
+* https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#environment-files
+
+== How to trigger manually?
+
+**Use option 3 from below.** Needs 2. to be present. I wrote `run-trigger.sh` for this.
+
+[NOTE]
+====
+
+[%collapsible]
+=====
+
+To manually trigger a build with the provided YAML file, you have a few options:
+
+1. **GitHub Actions Web UI**:
+   - Navigate to your repository on GitHub.
+   - Go to the "Actions" tab.
+   - Find the workflow you want to trigger under "All workflows" or "Recent workflows".
+   - Click on the workflow name.
+   - On the right-hand side, there should be a "Run workflow" button. Click on it, and you'll be prompted to select the branch and enter any necessary inputs.
+
+2. **Create a Dispatch Event**:
+   - Modify your YAML file to include a workflow_dispatch trigger.
+   - This trigger allows you to manually trigger a workflow using the GitHub API or the GitHub UI.
+   - Add the following lines under the `on` section in your YAML file:
+
+    ```yaml
+    on:
+      workflow_dispatch:
+    ```
+
+   - Commit and push the changes to your repository.
+   - Now, you should see a "Run workflow" button on the Actions tab next to your workflow. Clicking this button allows you to manually trigger a build.
+
+3. **GitHub CLI (gh)**:
+   - You can also use the GitHub CLI (`gh`) to trigger a workflow manually.
+   - Install `gh` if you haven't already done so.
+   - Run the following command in your terminal:
+
+    ```
+    gh workflow run <workflow-name>.yaml
+    ```
+
+   - Replace `<workflow-name>.yaml` with the path to your YAML file.
+   - This command will prompt you to select the branch and enter any necessary inputs.
+
+Choose the method that best fits your workflow and preferences.
+=====
+====
+
+
+== Notes
+
+// cspell:ignore gorhill pbatard libxz Terraforms uncompress
+
+If started from script delete/empty version file and update/overwrite release.
+
+TS keep the last 5 releases
+AGH keep the last 3 releases
+
+Why do you build Tailscale from source while you only compress AGH?
+
+I'm doing what is necessary. For Tailscale that requires building with "Small Tailscale" options and building a combined single binary. AGH is a single binary, and I have not looked for and found any advice how to further reduce file size without sacrificing functionality. So more than compressing with UPX is  is not necessary and it should enable the end of user to verify that the binaries have not been modified beyond compressing with UPX.
+
+---
+
+As this may cause inconsistencies in download and usage metrics of your software, I wanted to inform you about this and also ask to consider offering such downloads for users of your software by yourself.
+
+---
+
+If the processes here break the software, I won't be able to fix it. Enjoy the ride and space savings on your routers while it works. When it stops working you have to go back to the larger versions. It's that simple.
+
+gorhill & pbatard
+
+I was concerned about supply chain attacks before libxz, and I'm even more concerned now.
+
+While not everyone has the capability to maintain the code for this workflow, I tried to keep it as small and light on resources as possible.
+
+I don't want your bug report and issues, my intention is not to add new and possibly dangerous features, my intention only was to have a means to get the smallest possible binaries for space constrained platforms from a solution that has already been documented in the public before. As a perfectionist, I would prefer doing rigor software testing and scanning for security vulnerabilities as is done in the Tailscale public repository and a few other community repositories that come to my mind. But as someone who does not make any money from this and who isn't asking for money, I kindly ask others to pick up what I started here if there is a need for this.
+
+Ideally Tailscale or router manufacturers pick this up and put it in a public space, offering such builds from a trusted source with recent releases.
+
+My focus is not to provide a competing and potentially harmful offering to Tailscale or router manufacturers firmware. Take I look at the happenings around Terraforms license change and the creation of the Open Tofu fork. If someone claims that I do such a thing I have to stop offering these builds and you have to get the normal builds or fork this repository to build your own.
+
+I'm not providing uncompressed binaries. My reasoning for this is that I think that UPX compression is not lossy or destructive, which should imply that you get the same binary back when you uncompress the binary with UPX as if you had not compressed it in the first place.
+
+References:
+Link to UPX and small Tailscale issue.
+Link to documentation.
+Link to Open Tofu announcement.
