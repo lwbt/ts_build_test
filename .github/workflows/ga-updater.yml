@@ -30,9 +30,14 @@ jobs:
           #          fi
           #        env:
           #          PR_BRANCH: ${{ env.PR_BRANCH }}
-      - name: action-updater
-        uses: vsoch/action-updater@0.0.16
+      #- name: action-updater
+      #  uses: vsoch/action-updater@0.0.16
       # TODO: Is there a better way to handle this?
+      - run: |
+          sudo apt-get update -y
+          sudo apt-get install pipx -y --no-install-recommends
+      - run: |
+          pipx install action-updater
       - name: Test
         run: |
           action-updater update .github/workflows
