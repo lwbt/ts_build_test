@@ -9,9 +9,9 @@ on:
 jobs:
   ga-update:
     runs-on: ubuntu-latest
-    #    permissions:
-    #      contents: write
-    #      pull-requests: write
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout this repository
         uses: actions/checkout@v4
@@ -31,10 +31,13 @@ jobs:
           #        env:
           #          PR_BRANCH: ${{ env.PR_BRANCH }}
       - name: action-updater
-        uses: vsoch/action-updater@0.0.15
-        with:
-          #token: ${{ secrets.GITHUB_TOKEN }}
-          args: update
+        uses: vsoch/action-updater@0.0.16
+      # TODO: Is there a better way to handle this?
+      - name: Test
+        run: |
+          action-updater update .github/workflows
+#        with:
+#token: ${{ secrets.GITHUB_TOKEN }}
 #          actions: update
 #      - name: Create Pull Request
 #        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
