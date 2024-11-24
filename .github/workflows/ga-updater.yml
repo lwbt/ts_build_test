@@ -12,8 +12,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      #actions: write
-      workflows: write
+      actions: write
     steps:
       - name: Checkout this repository
         uses: actions/checkout@v4
