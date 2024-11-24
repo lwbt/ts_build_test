@@ -40,7 +40,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
         with:
-          path: main
+          #path: main
           title: Update GitHub Actions Workflows
           commit-message: Update GitHub Actions Workflows
           branch: ${{ env.PR_BRANCH }}
