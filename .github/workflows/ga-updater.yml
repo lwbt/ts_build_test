@@ -1,13 +1,16 @@
-# cspell:ignore vsoch evans
+# cspell:ignore vsoch evans pipx
+# TODO: This requires a token with the workflow permission to update actions
+# and create PRS for them. The regular token does not have these permissions.
 name: Update GitHub Actions Workflows
 on:
   schedule:
     - cron: 15 9 * * SAT
   workflow_dispatch:
-env:
-  PR_BRANCH: update-ga
+#env:
+#  PR_BRANCH: update-ga
 jobs:
   ga-update:
+    name: Update GitHub Actions
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -18,10 +21,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
-          #path: main
       # TODO: Is there a better way to handle this?
       - name: Check if branch used for Pull Request already exists
-        #working-directory: main
         run: |
           if [[ -n "$(git ls-remote --heads origin "${PR_BRANCH}")" ]]; then
             echo "Warning: Branch '${PR_BRANCH}' exists. Merge the Pull Request or delete the branch."
@@ -31,17 +32,27 @@ jobs:
           fi
         env:
           PR_BRANCH: ${{ env.PR_BRANCH }}
-      - name: action-updater
-        uses: vsoch/action-updater@0.0.16
-        with:
-          path: does-not-exist
-      - name: Update all actions
+          #      # This only checks for updates, despite of what the documentation says
+          #      - name: Check for updates
+          #        uses: vsoch/action-updater@0.0.16
+          #        with:
+          #          path: does-not-exist
+      - name: Install pipx package
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install pipx -y --no-install-recommends
+      # TODO: vsoch/action-updater seems to just use pip, we should look into that.
+      - name: Install action-updater with pipx
+        run: |
+          pipx install action-updater
+      # NOTE: Yes, we do attempt to update these and fail at the PR, this is
+      # the best I can do for now, otherwise it just says everything is ok.
+      - name: Check for updates
         run: |
           action-updater update .github/workflows/
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # v7.0.5
         with:
-          #path: main
           title: Update GitHub Actions Workflows
           commit-message: Update GitHub Actions Workflows
           branch: ${{ env.PR_BRANCH }}
