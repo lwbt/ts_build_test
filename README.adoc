@@ -36,6 +36,31 @@ Provide automated builds of Tailscale as described in https://tailscale.com/kb/1
 * Using the build option `--extra-small`
 * Compressing the binary with UPX
 
+== Tailscale Self-Update: How does it work?
+
+[WARNING]
+====
+Self-Update does not work with these builds.
+Your can run the https://github.com/Admonstrator/glinet-tailscale-updater/[updater script] with `yes` (`yes | script`) for updates.
+====
+
+On official builds you can use `tailscale update` to do a self-update, or even better Tailscale can do it for you with https://tailscale.com/kb/1067/update#auto-updates[auto-updates].
+
+Another popular program that uses self-updates is Syncthing, and it looks not too complicated:
+https://github.com/syncthing/syncthing/blob/f08a0ed01c777fbace6d0a47c9c091fd5194f5aa/cmd/infra/stupgrades/main.go#L272[Update]
+-> https://github.com/syncthing/syncthing/blob/f08a0ed01c777fbace6d0a47c9c091fd5194f5aa/cmd/infra/stupgrades/main.go#L35[URL].
+
+Tailscale:
+https://github.com/tailscale/tailscale/blob/ba3523fc3f62835bcddba683e37257ed7d53493c/cmd/tailscale/cli/update.go#L64[runUpdate -> Update]
+-> https://github.com/tailscale/tailscale/blob/ba3523fc3f62835bcddba683e37257ed7d53493c/clientupdate/clientupdate.go#L262[NewUpdater]
+-> Arguments.PkgsAddr -> https://pkgs.tailscale.com. And I think the updates are signed and will be verified.
+
+At the moment, I'm not sure if self-updates can be implemented without touching more than just the URL in the code base.
+It would be nice to have, but doing such kinds of patches opens the door to do other sketchy things.
+
+* Original URL pattern: https://pkgs.tailscale.com/stable/?v=1.76.6#static[] -> https://pkgs.tailscale.com/stable/tailscale_1.76.6_arm64.tgz
+* Custom URL pattern: https://github.com/lwbt/ts_build_test/releases/tag/v1.76.6[] -> https://github.com/lwbt/ts_build_test/releases/download/v1.76.6/tailscaled-linux-arm64
+
 == Do it yourself
 
 === Costs
