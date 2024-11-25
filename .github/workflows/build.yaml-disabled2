@@ -97,7 +97,7 @@ jobs:
           fi
       - name: Create Release
         if: env.TAG_SMALL != env.TAG
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
         with:
           name: Small Tailscale ${{ env.TAG }}
           tag: ${{ env.TAG }}
