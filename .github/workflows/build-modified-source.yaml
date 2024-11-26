@@ -1,7 +1,8 @@
-name: Build Go Binaries
+# cspell:ignore clientupdate
+name: Build Go Binaries (Modified Source)
 on:
-  schedule:
-    - cron: '0 0/3 * * *'
+  #schedule:
+  #  - cron: '0 0/3 * * *'
   workflow_dispatch:
 env:
   SOFTWARE_NAME: "Tailscale"
@@ -20,6 +21,10 @@ jobs:
       TAG: ${{ steps.tag.outputs.TAG }}
       TAG_SMALL: ${{ steps.tag_small.outputs.TAG_SMALL }}
     steps:
+      - name: List binaries
+        run: |
+          ls -l /bin/
+          ls -l /usr/bin/
       - name: Get latest ${{ env.SOFTWARE_NAME }} tag
         id: tag
         run: |
@@ -49,7 +54,7 @@ jobs:
     permissions:
       contents: write
     needs: check-versions
-    if: needs.check-versions.outputs.TAG_SMALL != needs.check-versions.outputs.TAG
+    #if: needs.check-versions.outputs.TAG_SMALL != needs.check-versions.outputs.TAG
     env:
       TAG: ${{ needs.check-versions.outputs.TAG }}
     strategy:
@@ -68,6 +73,11 @@ jobs:
           repository: ${{ env.REPO }}
           ref: ${{ env.TAG }}
           persist-credentials: false
+      - name: Modify source code
+        run: |
+          sed -i \
+            's|https://pkgs.tailscale.com|https://github.com/lwbt/ts_build_test/releases/download|' \
+            "clientupdate/clientupdate.go"
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
@@ -93,7 +103,7 @@ jobs:
     needs:
       - build
       - check-versions
-    if: needs.check-versions.outputs.TAG_SMALL != needs.check-versions.outputs.TAG
+    #if: needs.check-versions.outputs.TAG_SMALL != needs.check-versions.outputs.TAG
     env:
       TAG: ${{ needs.check-versions.outputs.TAG }}
     steps:
@@ -152,12 +162,12 @@ jobs:
       - name: Create tag in ${{ env.SOFTWARE_NAME }} Small repository
         run: |
           cd tools
-          if git rev-parse --quiet --verify "refs/tags/${TAG}"; then
+          if git rev-parse --quiet --verify "refs/tags/${TAG}-test"; then
             echo "Tag already exists"
             exit 0
           else
             echo "Tag does not exist, creating"
-            git tag "${TAG}"
+            git tag "${TAG}-test"
             git push --tags
           fi
         env:
@@ -165,17 +175,17 @@ jobs:
       - name: Create Release
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
         with:
-          name: Small ${{ env.SOFTWARE_NAME }} ${{ env.TAG }}
-          tag: ${{ env.TAG }}
+          name: Small ${{ env.SOFTWARE_NAME }} ${{ env.TAG }}-test
+          tag: ${{ env.TAG }}-test
           token: ${{ secrets.GITHUB_TOKEN }}
-          draft: false
-          prerelease: false
+          draft: true
+          prerelease: true
           #allowupdates: true
           artifacts: |
             ${{ env.FILE_NAME }}-*
             checksums.txt
           body: |
-            Small ${{ env.SOFTWARE_NAME }} build ${{ env.TAG }}
+            Small ${{ env.SOFTWARE_NAME }} build ${{ env.TAG }}-test
 
             For a complete changelog go to https://github.com/${{ env.REPO }}/releases/tag/${{ env.TAG }}
 
@@ -184,5 +194,6 @@ jobs:
             * Building a combined binary of `tailscale` and `tailscaled`
             * Using the build option `--extra-small`
             * Compressing the binary with UPX
+            * Modifying the source code!
 
             To use both programs, rename `tailscaled-OS-ARCH` to `tailscaled` and create a symbolic (`ln -sv tailscaled tailscale`)

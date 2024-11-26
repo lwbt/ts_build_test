@@ -11,6 +11,8 @@
 :caution-caption: 🔥
 :important-caption: ❗
 
+// cspell:ignore PkgsAddr
+
 == Overview
 
 (Temporary) Project URL: https://github.com/lwbt/ts_build_test
@@ -60,6 +62,68 @@ It would be nice to have, but doing such kinds of patches opens the door to do o
 
 * Original URL pattern: https://pkgs.tailscale.com/stable/?v=1.76.6#static[] -> https://pkgs.tailscale.com/stable/tailscale_1.76.6_arm64.tgz
 * Custom URL pattern: https://github.com/lwbt/ts_build_test/releases/tag/v1.76.6[] -> https://github.com/lwbt/ts_build_test/releases/download/v1.76.6/tailscaled-linux-arm64
+
+[NOTE]
+====
+
+.Just a quick test with `sed`
+[%collapsible]
+=====
+// cspell:disable
+.`sed -i 's|https://pkgs.tailscale.com|https://github.com/lwbt/ts_build_test/releases/download|' "clientupdate/clientupdate.go"`
+[source,diff]
+----
+--- a/clientupdate/clientupdate.go
++++ b/clientupdate/clientupdate.go
+@@ -91,7 +91,7 @@ type Arguments struct {
+        // update is aborted.
+        Confirm func(newVer string) bool
+        // PkgsAddr is the address of the pkgs server to fetch updates from.
+-       // Defaults to "https://pkgs.tailscale.com".
++       // Defaults to "https://github.com/lwbt/ts_build_test/releases/download".
+        PkgsAddr string
+        // ForAutoUpdate should be true when Updater is created in auto-update
+        // context. When true, NewUpdater returns an error if it cannot be used for
+@@ -161,7 +161,7 @@ func NewUpdater(args Arguments) (*Updater, error) {
+                }
+        }
+        if up.Arguments.PkgsAddr == "" {
+-               up.Arguments.PkgsAddr = "https://pkgs.tailscale.com"
++               up.Arguments.PkgsAddr = "https://github.com/lwbt/ts_build_test/releases/download"
+        }
+        return &up, nil
+ }
+@@ -494,7 +494,7 @@ func updateDebianAptSourcesList(dstTrack string) (rewrote bool, err error) {
+ }
+
+ func updateDebianAptSourcesListBytes(was []byte, dstTrack string) (newContent []byte, err error) {
+-       trackURLPrefix := []byte("https://pkgs.tailscale.com/" + dstTrack + "/")
++       trackURLPrefix := []byte("https://github.com/lwbt/ts_build_test/releases/download/" + dstTrack + "/")
+        var buf bytes.Buffer
+        var changes int
+        bs := bufio.NewScanner(bytes.NewReader(was))
+@@ -602,7 +602,7 @@ func updateYUMRepoTrack(repoFile, dstTrack string) (rewrote bool, err error) {
+        }
+
+        urlRe := regexp.MustCompile(`^(baseurl|gpgkey)=https://pkgs\.tailscale\.com/(un)?stable/`)
+-       urlReplacement := fmt.Sprintf("$1=https://pkgs.tailscale.com/%s/", dstTrack)
++       urlReplacement := fmt.Sprintf("$1=https://github.com/lwbt/ts_build_test/releases/download/%s/", dstTrack)
+
+        s := bufio.NewScanner(bytes.NewReader(was))
+        newContent := bytes.NewBuffer(make([]byte, 0, len(was)))
+@@ -1183,7 +1183,7 @@ type trackPackages struct {
+ }
+
+ func latestPackages(track string) (*trackPackages, error) {
+-       url := fmt.Sprintf("https://pkgs.tailscale.com/%s/?mode=json&os=%s", track, runtime.GOOS)
++       url := fmt.Sprintf("https://github.com/lwbt/ts_build_test/releases/download/%s/?mode=json&os=%s", track, runtime.GOOS)
+        res, err := http.Get(url)
+        if err != nil {
+                return nil, fmt.Errorf("fetching latest tailscale version: %w", err)
+----
+// cspell:enable
+=====
+====
 
 == Do it yourself
 
