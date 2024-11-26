@@ -141,10 +141,10 @@ jobs:
       - name: Compress Binary with UPX
         run: |
           "${PWD}/upx" --lzma --best --no-progress \
-            "${FILE_NAME}-"*"amd64"* \
-            "${FILE_NAME}-"*"arm"* \
-            "${FILE_NAME}-"*"arm64"* \
-            "${FILE_NAME}-"*"mips"*
+            "${FILE_NAME}-"*"-amd64" \
+            "${FILE_NAME}-"*"-arm" \
+            "${FILE_NAME}-"*"-arm64" \
+            "${FILE_NAME}-"*"-mips"
         env:
           FILE_NAME: ${{ env.FILE_NAME }}
       - name: Create checksums
