@@ -1,3 +1,4 @@
+# cspell:ignore riscv64
 name: Build Go Binaries
 on:
   schedule:
@@ -61,6 +62,7 @@ jobs:
           - arm
           - arm64
           - mips
+          - riscv64
     steps:
       - name: Checkout ${{ env.SOFTWARE_NAME }} repository
         uses: actions/checkout@v4

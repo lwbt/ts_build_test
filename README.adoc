@@ -55,7 +55,8 @@ https://github.com/syncthing/syncthing/blob/f08a0ed01c777fbace6d0a47c9c091fd5194
 Tailscale:
 https://github.com/tailscale/tailscale/blob/ba3523fc3f62835bcddba683e37257ed7d53493c/cmd/tailscale/cli/update.go#L64[runUpdate -> Update]
 -> https://github.com/tailscale/tailscale/blob/ba3523fc3f62835bcddba683e37257ed7d53493c/clientupdate/clientupdate.go#L262[NewUpdater]
--> Arguments.PkgsAddr -> https://pkgs.tailscale.com. And I think the updates are signed and will be verified.
+-> Arguments.PkgsAddr -> https://pkgs.tailscale.com.
+I think the updates are signed and will be verified, however I was able to modify the URL and create binaries with (broken) modified URLs.
 
 At the moment, I'm not sure if self-updates can be implemented without touching more than just the URL in the code base.
 It would be nice to have, but doing such kinds of patches opens the door to do other sketchy things.
