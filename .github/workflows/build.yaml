@@ -1,4 +1,4 @@
-# cspell:ignore riscv64
+# cspell:ignore riscv64 zizmor
 name: Build Go Binaries
 on:
   schedule:
@@ -135,6 +135,7 @@ jobs:
           done
           # NOTE: upx: tailscaled-linux-riscv64: UnknownExecutableFormatException
           mv -v "${FILE_NAME}-linux-riscv64" "${FILE_NAME}-linux-riscv64-uncompressed"
+          gzip "${FILE_NAME}-linux-riscv64-uncompressed"
           chmod -v +x "${FILE_NAME}-"*
         env:
           FILE_NAME: ${{ env.FILE_NAME }}
@@ -156,6 +157,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: tools
+          # TODO: Need to investigate what to do to pacify zizmor checks and
+          # also be able to set the tag. There may even be a better way than
+          # the script used below.
           #persist-credentials: false
       - name: Create tag in ${{ env.SOFTWARE_NAME }} Small repository
         run: |
@@ -169,9 +173,7 @@ jobs:
             git push --tags
           fi
         env:
-          # TODO: Is this correct?
           TAG: ${{ env.TAG }}
-          #TAG: ${{ needs.check-versions.outputs.TAG }}
       - name: Create Release
         uses: ncipollo/release-action@2c591bcc8ecdcd2db72b97d6147f871fcd833ba5 # v1.14.0
         with:
