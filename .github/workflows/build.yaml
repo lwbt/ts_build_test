@@ -132,7 +132,7 @@ jobs:
             mv -v "${dir}" "${dir}.d"
             mv -v "${dir}.d/${FILE_NAME}-"* .
             # NOTE: upx: tailscaled-linux-riscv64: UnknownExecutableFormatException
-            mv -v "${FILE_NAME}-riscv64" "${FILE_NAME}-riscv64-uncompressed"
+            mv -v "${FILE_NAME}-linux-riscv64" "${FILE_NAME}-linux-riscv64-uncompressed"
             rmdir -v "${dir}.d"
           done
           chmod -v +x "${FILE_NAME}-"*
