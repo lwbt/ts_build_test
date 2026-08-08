@@ -65,7 +65,7 @@ jobs:
           - riscv64
     steps:
       - name: Checkout ${{ env.SOFTWARE_NAME }} repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ env.REPO }}
           ref: ${{ env.TAG }}
@@ -159,7 +159,7 @@ jobs:
         env:
           FILE_NAME: ${{ env.FILE_NAME }}
       - name: Checkout ${{ env.SOFTWARE_NAME }} Small repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: tools
           # TODO: Need to investigate what to do to pacify zizmor checks and
