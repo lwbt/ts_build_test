@@ -76,7 +76,7 @@ jobs:
             's|https://pkgs.tailscale.com|https://github.com/lwbt/ts_build_test/releases/download|' \
             "clientupdate/clientupdate.go"
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: ${{ matrix.go-version }}
       - name: Download Go modules
